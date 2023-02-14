@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace API_Test
 {
-    internal class PirateSpeakResponse
+    public class PirateSpeakResponse
     {
         public class Contents
         {

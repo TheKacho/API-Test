@@ -8,6 +8,6 @@ namespace API_Test
 {
     internal class PiratePostModel
     {
-        public string text { get; set; }
+        public string? text { get; set; }
     }
 }

@@ -5,12 +5,15 @@ using Xunit.Abstractions;
 using FluentAssertions.Execution;
 using FluentAssertions;
 using Xunit.Sdk;
+using static API_Test.PirateSpeakResponse;
+using static API_Test.DummyResponseModel;
 
 namespace API_Test
 {
     public class UnitTest1
     {
         private readonly ITestOutputHelper output;
+        
 
         public UnitTest1(ITestOutputHelper output)
         {
@@ -48,16 +51,33 @@ namespace API_Test
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(baseUrl);
 
-            PiratePostModel postModel= new PiratePostModel();
+            PiratePostModel postModel = new PiratePostModel()
             {
-                text = "There is a snake in my ship!";
+                text = "Hello, I want to travel the ocean."
             };
-
+            
+            
             var serialize = System.Text.Json.JsonSerializer.Serialize(postModel);
-            var respond = await client.PostAsync("translate/pirate", new StringContent(serialize, encoding:System.Text.Encoding.UTF8, "application/json"));
+            var response = await client.PostAsync("translate/pirate", new StringContent(serialize, encoding:System.Text.Encoding.UTF8, "application/json"));
 
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseAsModel = System.Text.Json.JsonSerializer.Deserialize<Root>(responseContent);
+
+            using(new AssertionScope())
+            {
+                response.IsSuccessStatusCode.Should().BeTrue();
+                responseAsModel.contents.text.Should().Be("Hello, I want to travel the ocean.");
+                responseAsModel.contents.translated.Should().Be("Ahoy, I want t' travel th' briny deep.");
+                // this will check if the translated line posts correctly after the response content is deserialized through
+                // the httpclient
+            }
 
         }
+
+        
+       
+        
+            
         //[Fact]
         //public async Task ApiEntryNumberCount()
         //{
