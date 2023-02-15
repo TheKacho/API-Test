@@ -165,6 +165,21 @@ namespace API_Test
             }
         }
 
+        // This test demonstrates the delete user request
+        [Fact]
+        public async Task UserDelete()
+        {
+            HttpClient client = new()
+            {
+                BaseAddress = new Uri("https://reqres.in/")
+            };
+
+            var result = await client.DeleteAsync("/api/users/2");
+            var responseContent = await result.Content.ReadAsStringAsync();
+
+            responseContent.Should().BeNullOrEmpty();
+        }
+
 
 
         //[Fact]
