@@ -8,12 +8,13 @@ namespace API_Test
 {
     internal class DigimonPostModel
     {
+
         public class Rootobject
         {
-            public Digimon[] DigimonProperty { get; set; }
+            public Class1[] Property1 { get; set; }
         }
 
-        public class Digimon
+        public class Class1
         {
             public string name { get; set; }
             public string img { get; set; }
