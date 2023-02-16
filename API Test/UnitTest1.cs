@@ -13,7 +13,7 @@ namespace API_Test
     public class UnitTest1
     {
         private readonly ITestOutputHelper output;
-        
+
 
         public UnitTest1(ITestOutputHelper output)
         {
@@ -24,7 +24,7 @@ namespace API_Test
         public async Task ApiTest()
         {
             string baseUrl = "https://www.valvesoftware.com/";
-            HttpClient client= new HttpClient();
+            HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(baseUrl);
 
             var response = await client.GetAsync("about/stats");
@@ -33,9 +33,9 @@ namespace API_Test
             var data = JsonSerializer.Deserialize<SteamResponseModel>(content);
             var usersActive = int.Parse(data.users_online, System.Globalization.NumberStyles.AllowThousands);
 
-            
 
-            using(new AssertionScope())
+
+            using (new AssertionScope())
             {
                 response.IsSuccessStatusCode.Should().BeTrue();
                 usersActive.Should().BeGreaterThan(0);
@@ -56,8 +56,8 @@ namespace API_Test
         //    {
         //        text = "Hello, I want to travel the ocean."
         //    };
-            
-            
+
+
         //    var serialize = System.Text.Json.JsonSerializer.Serialize(postModel);
         //    var response = await client.PostAsync("translate/pirate", new StringContent(serialize, encoding:System.Text.Encoding.UTF8, "application/json"));
 
@@ -104,7 +104,7 @@ namespace API_Test
             var respondCall = await response.Content.ReadAsStringAsync();
             var respondModel = System.Text.Json.JsonSerializer.Deserialize<RegisterUserToken>(respondCall);
 
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 response.IsSuccessStatusCode.Should().BeFalse();
                 respondModel.id.Should().Be(0);
@@ -128,7 +128,7 @@ namespace API_Test
             using (new AssertionScope())
             {
                 response.IsSuccessStatusCode.Should().BeTrue();
-                
+
             }
         }
 
@@ -155,7 +155,7 @@ namespace API_Test
 
             var data = JsonSerializer.Deserialize<Post>(content);
 
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 response.IsSuccessStatusCode.Should().BeTrue();
                 data.id.Should().Be(101); //it should be the 101st post entry
@@ -180,7 +180,36 @@ namespace API_Test
             responseContent.Should().BeNullOrEmpty();
         }
 
+        //This test will test the Patch jsonplaceholder
+        // the result should replace/update the body with Bowser Castle
+        [Fact]
+        public async Task JsonPatch()
+        {
+            string baseUrl = "https://jsonplaceholder.typicode.com/";
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseUrl);
 
+            using StringContent jContent = new(
+                JsonSerializer.Serialize(new
+                {
+                    body = "Bowser Castle",
+                }),
+                Encoding.UTF8, "application/json"
+                );
+
+            var response = await client.PatchAsync("posts/2", jContent);
+            var content = await response.Content.ReadAsStringAsync();
+            var data = JsonSerializer.Deserialize<Post>(content);
+
+            using (new AssertionScope())
+            {
+                response.IsSuccessStatusCode.Should().BeTrue();
+                data.id.Should().Be(2);
+                data.title.Should().Be("qui est esse");
+                data.body.Should().Be("Bowser Castle");
+                data.userId.Should().Be(1);
+            }
+        }
 
         //[Fact]
         //public async Task ApiEntryNumberCount()
