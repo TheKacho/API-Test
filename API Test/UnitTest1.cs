@@ -6,7 +6,7 @@ using FluentAssertions.Execution;
 using FluentAssertions;
 using Xunit.Sdk;
 using static API_Test.PirateSpeakResponse;
-using static API_Test.DummyResponseModel;
+using static API_Test.JsonResponseModel;
 
 namespace API_Test
 {
@@ -43,39 +43,39 @@ namespace API_Test
             }
         }
 
-        // This is a PUT request test for Pirate Speak!
-        // NOTE: Cannot attempt too many requests or locks out for an hour!
-        //[Fact]
-        //public async Task PirateSpeakTest()
-        //{
-        //    string baseUrl = "https://api.funtranslations.com/";
-        //    HttpClient client = new HttpClient();
-        //    client.BaseAddress = new Uri(baseUrl);
+        //This is a PUT request test for Pirate Speak!
+        //NOTE: Cannot attempt too many requests or locks out for an hour!
+        [Fact]
+        public async Task PirateSpeakTest()
+        {
+            string baseUrl = "https://api.funtranslations.com/";
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseUrl);
 
-        //    PiratePostModel postModel = new PiratePostModel()
-        //    {
-        //        text = "Hello, I want to travel the ocean."
-        //    };
+            PiratePostModel postModel = new PiratePostModel()
+            {
+                text = "Hello, I want to travel the ocean."
+            };
 
 
-        //    var serialize = System.Text.Json.JsonSerializer.Serialize(postModel);
-        //    var response = await client.PostAsync("translate/pirate", new StringContent(serialize, encoding:System.Text.Encoding.UTF8, "application/json"));
+            var serialize = System.Text.Json.JsonSerializer.Serialize(postModel);
+            var response = await client.PostAsync("translate/pirate", new StringContent(serialize, encoding: System.Text.Encoding.UTF8, "application/json"));
 
-        //    var responseContent = await response.Content.ReadAsStringAsync();
-        //    var responseAsModel = System.Text.Json.JsonSerializer.Deserialize<Root>(responseContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+            var responseAsModel = System.Text.Json.JsonSerializer.Deserialize<Root>(responseContent);
 
-        //    using(new AssertionScope())
-        //    {
-        //        response.IsSuccessStatusCode.Should().BeTrue();
-        //        responseAsModel.contents.text.Should().Be("Hello, I want to travel the ocean.");
-        //        responseAsModel.contents.translated.Should().Be("Ahoy, I want t' travel th' briny deep.");
-        //        // this will check if the translated line posts correctly after the response content is deserialized through
-        //        // the httpclient
+            using (new AssertionScope())
+            {
+                response.IsSuccessStatusCode.Should().BeTrue();
+                responseAsModel.contents.text.Should().Be("Hello, I want to travel the ocean.");
+                responseAsModel.contents.translated.Should().Be("Ahoy, I want t' travel th' briny deep.");
+                // this will check if the translated line posts correctly after the response content is deserialized through
+                // the httpclient
 
-        //        //Note :cannot make too many requests or else locks out for at least an hour!
-        //    }
+                //Note :cannot make too many requests or else locks out for at least an hour!
+            }
 
-        //}
+        }
 
         [Fact]
 
@@ -113,25 +113,37 @@ namespace API_Test
 
         }
 
+        // This is a post test with the body
         [Fact]
-        public async Task DigimonEntry()
+        public async Task ApiRequestBody()
         {
-            string baseUrl = "https://digimon-api.vercel.app/";
+            string baseUrl = "https://reqres.in/";
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri(baseUrl);
 
-            var response = await client.GetAsync("api/digimon");
-            //var content = await response.Content.ReadAsStringAsync();
+            RegisterUser registerUser = new RegisterUser()
+            {
+                email = "charles.morris@reqres.in",
+                password = "Pistol"
+            };
+            var serialized = System.Text.Json.JsonSerializer.Serialize(registerUser);
 
-            //var data = JsonSerializer.Deserialize<DigimonPostModel>(content);
+            var response = await client.PostAsync("/api/register", new StringContent(serialized,
+                encoding: System.Text.Encoding.UTF8, "application/json"));
+            
+            var content = await response.Content.ReadAsStringAsync();
+            var responseModel = System.Text.Json.JsonSerializer.Deserialize<RegisterUserToken>(content);
 
             using (new AssertionScope())
             {
                 response.IsSuccessStatusCode.Should().BeTrue();
+                responseModel.id.Should().Be(5);
+                responseModel.token.Should().NotBeNullOrEmpty();
 
-            }
+            };
         }
 
+        // This tests the Post 
         [Fact]
         public async Task JsonPost()
         {
@@ -211,24 +223,44 @@ namespace API_Test
             }
         }
 
-        //[Fact]
-        //public async Task ApiEntryNumberCount()
-        //{
-        //    string baseurl = "";
-        //    HttpClient client= new HttpClient();
-        //    client.BaseAddress = new Uri(baseurl);
+        // This is a negative test that will lead to a "404 Page Not Found)
+        [Fact]
+        public async Task NegativeTest()
+        {
+            string baseUrl = "https://reqres.in/";
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseUrl);
 
-        //    var response = await client.GetAsync("entry");
-        //    var content = await response.Content.ReadAsStringAsync();
+            var response = await client.GetAsync("api/unknown/23");
+            var content = await response.Content.ReadAsByteArrayAsync();
+            var data = JsonSerializer.Deserialize<RegisterUserToken>(content);
 
-        //    var data = JsonSerializer.Deserialize<ResponseApiModel>(content);
-        //    int count = data.count;
+            using (new AssertionScope())
+            {
+                response.IsSuccessStatusCode.Should().BeFalse();
+            }
+            
+        }
 
-        //    using(new AssertionScope())
-        //    {
-        //        response.IsSuccessStatusCode.Should().BeTrue();
-        //        count.Should().BeGreaterThan(0);
-        //    }
-        //}
+        [Fact]
+        public async Task ApiParams()
+        {
+            string baseurl = "https://jsonplaceholder.typicode.com/";
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri(baseurl);
+
+            var response = await client.GetAsync("comments?postId=5");
+            var content = await response.Content.ReadAsStringAsync();
+
+            var data = JsonSerializer.Deserialize <Comment[]>(content);
+
+            using (new AssertionScope())
+            {
+                response.IsSuccessStatusCode.Should().BeTrue();
+                data.Length.Should().Be(5);
+                data.First().email.Should().Be("Noemie@marques.me");
+                data.Last().email.Should().Be("Isaias_Kuhic@jarrett.net");
+            }
+        }
     }
 }
