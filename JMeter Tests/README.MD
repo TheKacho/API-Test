@@ -14,5 +14,5 @@ has been temporarily cached so Yahoo and or the samples do not use any more band
 ##Graph Results
 ![graph](https://i.imgur.com/1FEkHFN.jpg)
 
-##Backend Listneer
+##Backend Listener
 ![backend](https://i.imgur.com/7EdIfyL.jpg)
