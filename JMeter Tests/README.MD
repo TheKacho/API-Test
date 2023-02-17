@@ -1,4 +1,4 @@
-## Summary of JQuery performance with Yahoo.com
+## Summary of JMeter performance with Yahoo.com
 
 What was discovered with this performance test with Yahoo.com is that initially took all 1500 users several seconds to load
 due to the amount of images and multiple front-end elements during the time of the test. What was interesting is that the longer
