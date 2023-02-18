@@ -19,7 +19,7 @@ a GitHub repo.
 
 
 ## Part 2: Automated API Tests with C#
-### Link: [Postman Collection](https://github.com/TheKacho/API-Test/tree/main/API%20Test)
+### Link: [Automation C# Project](https://github.com/TheKacho/API-Test/tree/main/API%20Test)
 Choose a public API and create automated tests for it in C#. 
 You may use any Nuget packages, unit testing frameworks, or assertion libraries you choose, but your solution must be in C#. 
 Create as many automated tests as required in order to complete all of the following criteria: 
